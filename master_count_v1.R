@@ -3,7 +3,7 @@ setwd("~/My Drive/Statistics/change_points/count")
 
 library(MASS)
 library(prisca)
-
+library(gamlss.dist)
 source("functions_count.R")
 
 
@@ -12,13 +12,13 @@ T <- 150
 p <- 1
 nA <- 40
 nB <- 70
-theta <- 1/4
+theta <- 1/3
 #yA <- rpois(nA, 1)
 #yB <- rpois(nB, 10)
 #yC <- rpois(T-nA-nB, 5)
 yA <- rDPO(nA, mu = 1, sigma = 1/theta, max.value = 10000)
 yB <- rDPO(nB, mu = 3, sigma = 1/theta, max.value = 10000)
-yC <- rDPO(T-nA-nB, mu = 5, sigma = 1/theta, max.value = 10000)
+yC <- rDPO(T-nA-nB, mu = 6, sigma = 1/theta, max.value = 10000)
 y <- c(yA,yB,yC)
 y <- matrix(y,ncol=p)
 plot(y)
@@ -69,13 +69,17 @@ library(wbs)
 w <- wbs(z)
 w.cpt <-  changepoints(w,penalty="bic.penalty")
 cp.wbs <- sort(w.cpt$cpt.ic$bic.penalty)+1
+#SMUCE
+library(stepR)
+cp.smuce<-which(abs(diff(fitted(smuceR(y, 1:T, family="poisson"))))>0)+1 #gives the change points of smuce
 
 
 #susie
 library(susieR)
-fitted <- susie(X, z,L = 2)
+#fitted <- susie(X, z,L = 2)
 #fitted$sets
 cp.wbs
+cp.smuce
 cp.poi
 cp.dopoi
 out$theta
